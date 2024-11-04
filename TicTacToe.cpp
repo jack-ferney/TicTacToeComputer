@@ -26,22 +26,22 @@ void printBoard() {
 void checkGame() {
     drawChecker = 0;
     for (int i = 0; i < 3; i++) {
-        if (board[i][0] == board[i][1] & board[i][1] == board[i][2] & board[i][0] != ' ') {
+        if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != ' ') {
             gameOver = true;
             return;
         }
     }
     for (int i = 0; i < 3; i++) {
-        if (board[0][i] == board[1][i] & board[1][i] == board[2][i] & board[0][i] != ' ') {
+        if (board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i] != ' ') {
             gameOver = true;
             return;
         }
     }
-    if (board[0][0] == board[1][1] & board[1][1] == board[2][2] & board[0][0] != ' ') {
+    if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != ' ') {
         gameOver = true;
         return;
     }
-    if (board[0][2] == board[1][1] & board[1][1] == board[2][0] & board[0][2] != ' ') {
+    if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != ' ') {
         gameOver = true;
         return;
     }
@@ -89,71 +89,42 @@ void ComputerTurn() {
     }
     int choice = -1;
     cout << "\n\nComputer's turn!\n\n";
-    // Check rows for a potential win
+
+    // Brute force search for computer win
     for (int i = 0; i < 3; i++) {
-        if ((board[i][0] == board[i][1] && board[i][0] != ' ' && board[i][2] == ' ') ||
-            (board[i][1] == board[i][2] && board[i][1] != ' ' && board[i][0] == ' ') ||
-            (board[i][0] == board[i][2] && board[i][0] != ' ' && board[i][1] == ' ')) {
-            for (int k = 0; k < 3; k++) {
-                if (board[i][k] == ' ') {
+        for (int k = 0; k < 3; k++) {
+            if (board[i][k] == ' ' && choice == -1) {
+                board[i][k] = 'O';
+                checkGame();
+                if (gameOver) {
+                    gameOver = false;
                     choice = i * 10 + k;
+                    board[i][k] = ' ';
                     break;
                 }
-            }
-            if (choice != -1) {
-                break;
+                board[i][k] = ' ';
             }
         }
     }
 
-    // Check columns for a potential win
-    if (choice == -1) {
-        for (int i = 0; i < 3; i++) {
-            if ((board[0][i] == board[1][i] && board[0][i] != ' ' && board[2][i] == ' ') ||
-                (board[1][i] == board[2][i] && board[1][i] != ' ' && board[0][i] == ' ') ||
-                (board[0][i] == board[2][i] && board[0][i] != ' ' && board[1][i] == ' ')) {
-                for (int k = 0; k < 3; k++) {
-                    if (board[k][i] == ' ') {
-                        choice = k * 10 + i;
-                        break;
-                    }
-                }
-                if (choice != -1) {
+    // Brute force search for player win (to block)
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 3; k++) {
+            if (board[i][k] == ' ' && choice == -1) {
+                board[i][k] = 'X';
+                checkGame();
+                if (gameOver) {
+                    gameOver = false;
+                    choice = i * 10 + k;
+                    board[i][k] = ' ';
                     break;
                 }
+                board[i][k] = ' ';
             }
         }
     }
 
-    // Check diagonals for a potential win
-    if (choice == -1) {
-        if ((board[0][0] == board[1][1] && board[0][0] != ' ' && board[2][2] == ' ') ||
-            (board[1][1] == board[2][2] && board[1][1] != ' ' && board[0][0] == ' ') ||
-            (board[0][0] == board[2][2] && board[0][0] != ' ' && board[1][1] == ' ')) {
-            for (int i = 0; i < 3; i++) {
-                if (board[i][i] == ' ') {
-                    choice = i * 11;
-                    break;
-                }
-            }
-        }
-    }
-
-    if (choice == -1) {
-        if ((board[0][2] == board[1][1] && board[0][2] != ' ' && board[2][0] == ' ') ||
-            (board[1][1] == board[2][0] && board[1][1] != ' ' && board[0][2] == ' ') ||
-            (board[0][2] == board[2][0] && board[0][2] != ' ' && board[1][1] == ' ')) {
-            if (board[0][2] == ' ') {
-                choice = 2;
-            } else if (board[1][1] == ' ') {
-                choice = 11;
-            } else if (board[2][0] == ' ') {
-                choice = 20;
-            }
-        }
-    }
-
-    // If no winning move is found, choose the first available space (simple AI logic)
+    // If no winning move is found, choose the first available space
     if (choice == -1) {
         for (int i = 0; i < 3; i++) {
             for (int k = 0; k < 3; k++) {
@@ -167,6 +138,7 @@ void ComputerTurn() {
             }
         }
     }
+
     int row = choice / 10;
     int column = choice % 10;
     board[row][column] = 'O';
@@ -180,11 +152,11 @@ int main() {
 
     printBoard();
     while (!gameOver) {
-        ComputerTurn();
+        PlayerTurn();
         if (gameOver) {
             break;
         }
-        PlayerTurn();
+        ComputerTurn();
     }
     if (drawChecker == 9) {
         cout << "\n\nDraw... No winner!\n\n";
